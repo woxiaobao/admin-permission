@@ -48,7 +48,7 @@
                                         <div class="form-group">
                                             <g:each in="${per.actions}" var="action" status="j">
                                                 <label>
-                                                    <input type="checkbox" class="flat-red" checked name="${per.controller}" value="${per.controller}:${action}"/>${action}
+                                                    <input type="checkbox" class="flat-red" checked name="${per.controller}:${action}" value="${per.controller}:${action}"/>${action}
                                                 </label>
                                             </g:each>
                                             
@@ -61,14 +61,13 @@
                                 </div>
                             </div>
                         </div><!-- /.box-body -->
-
-                        <div class="box-footer subBtn">
+                    </form>
+                    <div class="box-footer subBtn">
 
                             <button type="button"  data-loading-text="正在保存..."  onclick="$(this).button('loading');subRoleForm();" class="btn btn-primary pull-right margin" autocomplete="off"><i class="fa fa-save"></i> 保存</button>
 
                             <a href="javascript:history.go(-1);" class="btn btn-default margin"><i class="fa fa-reply"></i> 返 回</a>
                         </div>
-                    </form>
                 </div>
             </div>
         </div>
@@ -82,24 +81,42 @@
             
             $(document).ready(function() {
                 loadAjaxForm();
-                def per = [];
-                def name = "";
                 $("input[type='checkbox']").each(function(){
                     if ("checked" == $(this).attr("checked")) {
-                        if(!name){
-                            name = $(this).attr('name')
-                        }else{
-                            if(name == $(this).attr('name')){
-                                
-                            }
-                        }
+                        
                         console.log( $(this).attr('name') );
                           console.log( $(this).attr('value') );
                     }
                 });
+
+
+
+                $.ajax({
+                      cache: false,
+                      type: "GET",
+                      url:"/admin-permission/user/getPerByRole/"+$("#id").val(),
+                      data:{},// 你的formid $('#form_count').serialize()
+                      async: false,
+                      error: function(request) {
+                          jacked.log("发生错误！");
+                      },
+                      success: function(data) {
+                          console.log(data);
+                          //menu.html(data);
+                      }
+                  });
             });
 
-
+            function save_role(){
+                //def per = [];
+                $("input[type='checkbox']").each(function(){
+                    if ("checked" == $(this).attr("checked")) {
+                        
+                        console.log( $(this).attr('name') );
+                          console.log( $(this).attr('value') );
+                    }
+                });
+            }
 
             function loadAjaxForm(){
                 var options = {

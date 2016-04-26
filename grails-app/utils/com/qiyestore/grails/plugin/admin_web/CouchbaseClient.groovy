@@ -1,5 +1,5 @@
 package com.qiyestore.grails.plugin.admin_web
-import com.couchbase.client.java.CouchbaseCluster
+//import com.couchbase.client.java.CouchbaseCluster
 // import com.couchbase.client.java.document.JsonDocument
 // import com.couchbase.client.java.document.json.JsonObject
 
@@ -14,8 +14,8 @@ class CouchbaseClient {
     private static def bucket
 	
 	static{
-		cluster = CouchbaseCluster.create(host)
-		bucket = cluster.openBucket(bucketName)
+		//cluster = CouchbaseCluster.create(host)
+		//bucket = cluster.openBucket(bucketName)
 	}
     
 //    static connect(def host, def bucketName, def bucketPassword) {
@@ -25,11 +25,11 @@ class CouchbaseClient {
     
     
     static disconnect() {
-        cluster.disconnect()
+        //cluster.disconnect()
     }
     
     static getBucket() {
-        return bucket
+        //return bucket
     }
     
 }

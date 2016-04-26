@@ -5,13 +5,7 @@ import org.springframework.beans.BeanWrapper
 import org.springframework.beans.PropertyAccessorFactory
 
 import grails.converters.JSON
-import com.couchbase.client.java.document.JsonDocument
-import com.couchbase.client.java.document.json.JsonObject
-// import com.couchbase.client.java.view.ViewQuery
-import com.couchbase.client.java.query.N1qlQuery
-import com.couchbase.client.java.query.N1qlQueryResult
-import rx.Observable
-import com.qiyestore.grails.plugin.admin_web.CouchbaseClient as CBC
+
 
 class CodeController {
 
@@ -68,14 +62,12 @@ class CodeController {
 
     def edit() {
         def result = []
-        if(params.id) result = [item:getOne(params.id)]
         result
     }
 
     def delete() {
         try {
             def docid = "code:$params.id"
-            CBC.bucket.remove(docid)
             render 'success'
         } catch (Exception e) {
             render e.message
@@ -85,23 +77,7 @@ class CodeController {
     def save() {
         def result = "success"
         def newData = [:]
-        if(!params.code){
-            result = "error"
-            render result
-            return
-        }
-        if(params.id) {
-            newData = getOne(params.id)
-        } else {
-            newData = [id: params.code, type: 'code']
-        }
-        if(newData) {
-            newData.code = params.code ?: ''
-            newData.message = params.message ?: ''
-            newData.description = params.description ?: ''
-            def jsonDoc = newData as JSON
-            CBC.bucket.upsert(JsonDocument.create("code:$newData.id", JsonObject.fromJson(jsonDoc.toString())))
-        }
+       
         render result
     }
 
@@ -110,11 +86,6 @@ class CodeController {
 	 * 详情
 	 */
 	private def getOne(def id) {
-		def doc = CBC.getBucket().get("code:${id}")
-        def content = doc?.content()?.toMap()
-        if(!content) {
-			throw new Exception("[$id]未找到")
-		}
-		return content
+		
 	}
 }

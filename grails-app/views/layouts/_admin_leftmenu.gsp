@@ -41,7 +41,7 @@ $.ajax({
       cache: false,
       type: "GET",
       url:"/admin-permission/common/getLeftMenu",
-      data:$('#form_count').serialize(),// 你的formid
+      data:{},// 你的formid $('#form_count').serialize()
       async: false,
       error: function(request) {
           jacked.log("发生错误！");

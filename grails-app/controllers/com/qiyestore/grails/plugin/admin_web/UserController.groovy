@@ -395,7 +395,22 @@ class UserController {
        render(view: "/user/roleEdit",model:[treeJson:treeJson as JSON,role: role,refererUrl:refererUrl, permission: data]);
     }
 	
-	
+	 /****
+    *
+	*	根据角色获取权限
+    ***/
+    def getPerByRole = {
+    	if(params.id){
+    		def role = 	TRole.get(params.id);
+    		role.permissions.each{
+    			print it.permission
+    		}
+    		render role.permissions as JSON
+		}else{
+			render "error"
+		}
+    }
+
 
     /****
     *
@@ -404,9 +419,7 @@ class UserController {
     def roleSave = {
 
     	def role; 
-
     	if(params.id){
-
     		role = 	TRole.get(params.id);
     	}
 
@@ -415,16 +428,10 @@ class UserController {
     		role.dateCreated = new Date(); 
     	}
 
-
     	role.lastUpdated = new Date(); 
-
         role.properties = params
-
-
 		if(role.id){
-			TRoleTModule.executeUpdate("delete TRoleTModule m where m.role.id=:rid", [rid:role.id])
 		}
-		
 		role.save(flush:true);
 		def rm = params.rs;
 
@@ -434,16 +441,7 @@ class UserController {
 			for(int i=0;i<rm.length;i++){
 				def moduleId = rm[i];
 				if(moduleId){
-					def module = TModule.get(moduleId as Long);
-					if(module){
-						def t = new TRoleTModule();
-						t.module = module;
-						t.role = role;
-						t.save(flush:true);
-						if(t.hasErrors()){
-							println t.errors;
-						}
-					}
+					
 				}
 			}
 		}

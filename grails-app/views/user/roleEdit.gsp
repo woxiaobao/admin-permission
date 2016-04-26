@@ -82,8 +82,17 @@
             
             $(document).ready(function() {
                 loadAjaxForm();
+                def per = [];
+                def name = "";
                 $("input[type='checkbox']").each(function(){
                     if ("checked" == $(this).attr("checked")) {
+                        if(!name){
+                            name = $(this).attr('name')
+                        }else{
+                            if(name == $(this).attr('name')){
+                                
+                            }
+                        }
                         console.log( $(this).attr('name') );
                           console.log( $(this).attr('value') );
                     }

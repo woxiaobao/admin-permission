@@ -1,0 +1,9 @@
+*.class
+bin/
+.settings/
+temp/
+logs/
+upload/
+target/
+target-eclipse/
+wrapper/

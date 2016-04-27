@@ -23,7 +23,7 @@ class UserSecurityService {
         } else {
             print "initDB"
         	adminUser = new TUser(username:'admin', name:'系统管理员', password:this.encodePassword('111111'), email:'admin@qiyestore.com', nickname:'Admin', status:TUser.STATUS_USE, comment:'GENERATED at BOOTSTRAP').save(flush:true)
-        	def baseModule = new TModule(name:'首   页',moduleImg:'fa-dashboard', tname:'dashboard',action:'index',).save(flush:true)
+        	def baseModule = new TModule(name:'首   页',moduleImg:'fa-dashboard', tname:'dashboard',taction:'index',).save(flush:true)
 
             def a = new TPermission(permission:'user:userEdit,userSave').save(flush:true)
             def b = new TPermission(permission:'dashboard:*').save(flush:true)
@@ -36,9 +36,9 @@ class UserSecurityService {
             new TUserTRole(role:adminRole, user: adminUser).save(flush:true)
 
             def adminModule = new TModule(name:'权限管理', moduleImg:'fa-users', tname:'user').save(flush:true)
-            def moduleModule = new TModule(name:'模块管理', moduleImg:'fa-folder-o', tname:'user',action:'moduleList', parentId: adminModule.id).save(flush:true)
-            def roleModule = new TModule(name:'角色管理', moduleImg:'fa-male', tname:'user',action:'roleList', parentId: adminModule.id).save(flush:true)
-            def userModule = new TModule(name:'用户管理', moduleImg:'fa-user-plus', tname:'user', action:'userList', parentId: adminModule.id).save(flush:true)
+            def moduleModule = new TModule(name:'模块管理', moduleImg:'fa-folder-o', tname:'user',taction:'moduleList', parentId: adminModule.id).save(flush:true)
+            def roleModule = new TModule(name:'角色管理', moduleImg:'fa-male', tname:'user',taction:'roleList', parentId: adminModule.id).save(flush:true)
+            def userModule = new TModule(name:'用户管理', moduleImg:'fa-user-plus', tname:'user', taction:'userList', parentId: adminModule.id).save(flush:true)
 
             log.debug 'DB init OK!'
 

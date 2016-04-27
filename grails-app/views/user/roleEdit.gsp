@@ -14,9 +14,7 @@
                         <div class="box-body">
                             <input type="hidden" name="id" id="id" value="${role?.id}" />
                             
-                            <input type="hidden" id="treeJson" name="treeJson" value="${treeJson}"/>
-
-                            <input type="hidden" name="rs" id="rs" value="" />
+                            <input type="hidden" name="permission" id="permission" value="" />
                             <div class="form-group">
                                 <label for="authority">角色名称</label>
                                 
@@ -45,16 +43,10 @@
                                 <div class="form-group">
                                     <g:each in="${permission}" var="per" status="i">
                                         <h2>${per.controller}</h2>
-                                        <div class="form-group">
                                             <g:each in="${per.actions}" var="action" status="j">
-                                                <label>
-                                                    <input type="checkbox" class="flat-red" checked name="${per.controller}:${action}" value="${per.controller}:${action}"/>${action}
-                                                </label>
+                                                <input type="checkbox"  value="${per.controller}:${action}"/>${action}
                                             </g:each>
                                             
-                                        </div>
-
-
                                     </g:each>
                                 </div>
                                     
@@ -80,95 +72,59 @@
         <script type="text/javascript">
             
             $(document).ready(function() {
-                loadAjaxForm();
-                $("input[type='checkbox']").each(function(){
-                    if ("checked" == $(this).attr("checked")) {
-                        
-                        console.log( $(this).attr('name') );
-                          console.log( $(this).attr('value') );
-                    }
-                });
 
-
-
+                //获取role的permission
                 $.ajax({
                       cache: false,
                       type: "GET",
-                      url:"/admin-permission/user/getPerByRole/"+$("#id").val(),
+                      url:app.contextPath+"/user/getPerByRole/"+$("#id").val(),
                       data:{},// 你的formid $('#form_count').serialize()
                       async: false,
                       error: function(request) {
                           jacked.log("发生错误！");
                       },
                       success: function(data) {
-                          console.log(data);
-                          //menu.html(data);
+                          if(data == "new"){
+                            //jacked.log("发生错误！");
+                            return;
+                          }
+                          for(var d in data){
+                            var per = data[d].split("||");
+                            for(var i=0; i<per.length;i++){
+                                $("input[value='"+per[i]+"']").attr("checked",true);
+                            }
+                          }
                       }
                   });
             });
 
-            function save_role(){
-                //def per = [];
-                $("input[type='checkbox']").each(function(){
-                    if ("checked" == $(this).attr("checked")) {
-                        
-                        console.log( $(this).attr('name') );
-                          console.log( $(this).attr('value') );
-                    }
+            function subRoleForm(){
+                var per = new Array();
+                $($("input:checked")).each(function(){
+                    per.push( $(this).attr('value') );
                 });
+                console.log(per.join("||"));
+                $("#permission").val(per.join("||"));
+                 $.ajax({
+                      cache: false,
+                      type: "POST",
+                      url:"${request.contextPath}/user/roleSave",
+                      data:$('#roleForm').serialize(),// 你的formid $('#form_count').serialize()
+                      async: false,
+                      error: function(request) {
+                          jacked.log("发生错误！");
+                      },
+                      success: function(data) {
+                          if(data == "success"){
+                            jacked.log("保存成功！");
+                            window.setTimeout("history.go(-1)",1500);
+                          }
+                          //menu.html(data);
+                      }
+                  });
             }
 
-            function loadAjaxForm(){
-                var options = {
-                        dataType:"text",
-                        type:"post",
-                        beforeSubmit : function(arr, $form, options) {
-                        var bool = true;
-                        
-                        //去除错误样式
-                        cleanFormErrors();
-
-                        var authority = $("#authority").val();
-                        var comment = $("#comment").val();
-
-                        if(authority==""){
-                            showFormErrors($("#authority"),"角色名称不能为空！");
-                            bool = false;
-                        }else if(comment==""){
-                            showFormErrors($("#comment"),"备注不能为空！");
-                            bool = false;
-                        }
-
-                        if(bool){
-                            $("div.subBtn").find("button").each(function (){
-                                $(this).attr("disabled","disabled");
-                                $(this).addClass("disabled");
-                            });
-                        }else{
-
-                            $("div.subBtn").find("button").each(function (){
-                               $(this).button('reset');
-                            });
-                        }
-
-                        return bool;
-                    },
-                    success: function(data) {
-                       if(data=="success"){
-
-                            abox("success","操作成功！",function (){
-                                var refererUrl = "${refererUrl}";
-                                var m = refererUrl.replace(/amp;/g,"");
-                                location.href=m;
-                            });
-                       }else{
-
-                            abox("error","操作失败！");
-                       }
-                    }
-                }; 
-                $('#roleForm').ajaxForm(options);
-            }
+            
 
         </script>
     </body>

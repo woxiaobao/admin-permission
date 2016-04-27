@@ -7,10 +7,10 @@ import grails.converters.JSON;
 
 class MenuUtils{
 
-	def static menu(){
+	def static menu(def request){
 		def menu='''
 			<li class="">
-			    <a href="/admin-permission/">
+			    <a href="${request.contextPath}/">
 			      <i class="fa fa-dashboard"></i>
 			      <span>首　　页</span>
 			    </a>
@@ -25,33 +25,40 @@ class MenuUtils{
 			if(moduleString != 'dashboard') list << moduleString
 			//getModuleByName(moduleString)
 		}
-		menu += getModuleByName(list)
+		menu += getModuleByName(list, request)
 		//print menu
 		menu
 	}
 
-	def static getModuleByName(def tname){
+	def static getModuleByName(def tname, def request){
 		def menu=''
+		//使用set集合去重
+		Set<TModule> set = []
 		def list = TModule.createCriteria().list {
 			'in'("tname",tname);
 		}
-		menu = getMenuByModule(list)
+		list.each{
+			set << it
+			if(it.parentId) set << TModule.get(it.parentId)
+			
+		}
+		menu = getMenuByModule(set, request)
 		menu
 	}
 
-	def static getMenuByModule(def list){
+	def static getMenuByModule(def list, def request){
 		//print list
 		def menu = ''
 		def parentMenu = []
 		def sonMenu = []
 		list.each{
-			if(!it.parentId) parentMenu << it
+			if(!it?.parentId) parentMenu << it
 			else sonMenu << it
 		}
 		parentMenu.each{ p ->
 			def hasSon = false
 			sonMenu.each{ s ->
-				if(s.parentId == p.id) hasSon = true
+				if(s?.parentId == p?.id) hasSon = true
 			}
 
 			if(hasSon){
@@ -66,7 +73,7 @@ class MenuUtils{
 					if(s.parentId == p.id){
 						menu += """
 						<li class=''>
-					      <a style='margin-left: 10px;' href='/admin-permission/${s.tname}/${s.action}'><i class='fa ${s.moduleImg}'></i> ${s.name}</a>
+					      <a style='margin-left: 10px;' href='${request.contextPath}/${s.tname}/${s.taction}'><i class='fa ${s.moduleImg}'></i> ${s.name}</a>
 					    </li>
 						"""
 					}
@@ -79,8 +86,8 @@ class MenuUtils{
 			}else{
 				menu += """
 				<li class=''>
-				  <a href='/admin-permission/${p.tname}/${p.action}'>
-				    <i class='fa ${p.moduleImg}'></i> <span>${p.name}</span></i>
+				  <a href='${request.contextPath}/${p?.tname}/${p?.taction}'>
+				    <i class='fa ${p?.moduleImg}'></i> <span>${p?.name}</span></i>
 				  </a>
 				</li>
 				"""

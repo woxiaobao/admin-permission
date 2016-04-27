@@ -40,11 +40,10 @@ var menu = $("#left_menu");
 $.ajax({
       cache: false,
       type: "GET",
-      url:"/admin-permission/common/getLeftMenu",
+      url:app.contextPath+"/common/getLeftMenu",
       data:{},// 你的formid $('#form_count').serialize()
       async: false,
       error: function(request) {
-          jacked.log("发生错误！");
       },
       success: function(data) {
           //console.log(data);

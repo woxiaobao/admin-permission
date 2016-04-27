@@ -4,7 +4,7 @@ class TModule {
 	
 	String name;
 	String tname;
-	String action;
+	String taction;
 	String moduleImg;
 	Long  parentId;
 	Integer sortTop=0;

@@ -8,11 +8,9 @@ class UserController {
 
 	def index() { redirect uri:'/dashboard'}
 
-
 	def dashboard() {
     	render view:'/user/dashboard'
 	}
-	
 	
 	
     /***
@@ -48,9 +46,6 @@ class UserController {
 
 
 		def roles  = TRole.createCriteria().list(){};
-
-
-
 		render(view: "/user/userList",model: [params:params,result:result,roles:roles,total:result.totalCount])
 	}
 
@@ -60,8 +55,6 @@ class UserController {
 	*
 	**/
 	def userEdit = {
-
-
 		//信息来源
 		def refererUrl = request.getHeader("Referer");
 		def user
@@ -103,17 +96,12 @@ class UserController {
 		def username = params.username;
 
 		//println "username="+username;
-
-
 		def result = TUser.createCriteria().list(){
 			eq("username",username);
 		};
-
 		if(result){//已经存在 不可以添加
-
 			render(text: "0",contentType: "text/plain", status:response.SC_OK)
 		}else{
-
 			render(text: "1",contentType: "text/plain", status:response.SC_OK)
 		}
 	}
@@ -124,14 +112,10 @@ class UserController {
 		if(params.id){
 			user = TUser.get(params.id as Long);
 		}
-
 		if(!user){
 			user = new TUser();
 		}
-
-
 		user.properties = params;
-
 		def savePath = "${grailsApplication.config.upfile.savePath}";
 
 		def userIcon = params.userIcon;
@@ -143,7 +127,6 @@ class UserController {
 				user.icon = userIcon;
 			// }
 		}
-
 		user.createdById = UserSecurity.currentUserId;
 		if(params.pwd){
 			user.password =userSecurityService.encodePassword(params.pwd);
@@ -173,9 +156,7 @@ class UserController {
 	*
 	****/
 	def userDel = {
-
 		if(params.id){
-			
 			def user = TUser.get(params.id as Long);
 			user.status = -1;
 			user.enabled = false;
@@ -189,34 +170,23 @@ class UserController {
 	}
 
 
-
-
-
-
 	/**
 	 * 创建模块
 	 */
 	def moduleEdit = {
-
 		//信息来源
 		def refererUrl = request.getHeader("Referer");
-		
 		def module;
 		def parentModule;
-		
 		if(params.id){
-			
 			module = TModule.get(params.id as Long);
 			if(module){
 				parentModule = TModule.get(module.parentId);
 			}
 		}else{
-			
 			module = new TModule();
 		}
-		
 		if(!parentModule && params.parentId){
-			
 			parentModule =  TModule.get(params.parentId as Long);
 		}
 		
@@ -229,7 +199,6 @@ class UserController {
 	 * 保存模块
 	 */
 	def moduleSave = {
-		
 		def result = "success";
 		def module;
 		if(params.id){
@@ -239,9 +208,7 @@ class UserController {
 			module = new TModule();
 		}
 		module.properties = params
-		
 		module.save(flush:true);
-
 		if(module.hasErrors()){
 			println "module save error:"+module.errors;
 			result ="fail";
@@ -256,12 +223,9 @@ class UserController {
 	 *
 	 */
 	def moduleDel = {
-		
 		def result = "success";
 		def module;
-		
 		//println "params.id="+params.id;
-		
 		if(params.id){
 			def chind = TModule.createCriteria().list {
 				eq("parentId",params.id as Long);
@@ -274,7 +238,6 @@ class UserController {
 				if(module){
 					module.delete(flush:true);
 					//删除关联关系
-					TRoleTModule.executeUpdate("delete TRoleTModule m where m.module.id=:mid", [mid:params.id as Long])
 				}
 			}
 			
@@ -333,34 +296,19 @@ class UserController {
 
 
 	def roleList = {
-
 		params.max = 25
 		params.offset = params.offset?params.int('offset'):0
-
 		def result = TRole.createCriteria().list(max: params.max, offset: params.offset){
-
 			if(params.name) eq("authority",params.name);
-		};
-		
+		}
 		render(view: "/user/roleList",model: [params:params,result:result,total:result.totalCount]);
 
 	}
 
 	def roleEdit = {
-
  		def role 
-		def roleModules;
-		def modules
-		//信息来源
-		def refererUrl = request.getHeader("Referer");
-		//print refererUrl
-		modules = TModule.createCriteria().list {
-			order("sortTop","desc")
-		};
-
 		if(params.id){
 			role = TRole.get(params.id as Long);
-			
 		}
 
 		//assets,auth,common,dashboard,code,user
@@ -381,18 +329,10 @@ class UserController {
            
    		}
         //print data as JSON
-
-		def roleModuleStr="";
-		
-
-		def treeJson = [];
-		treeJson << [id:0, pId:-1, name:"模块", open:true];
-		
 		if(!role){
 			role = new TRole();
 		}
-
-       render(view: "/user/roleEdit",model:[treeJson:treeJson as JSON,role: role,refererUrl:refererUrl, permission: data]);
+       render(view: "/user/roleEdit",model:[role: role, permission: data]);
     }
 	
 	 /****
@@ -402,12 +342,14 @@ class UserController {
     def getPerByRole = {
     	if(params.id){
     		def role = 	TRole.get(params.id);
+    		def list = []
     		role.permissions.each{
-    			print it.permission
+    			list << it.permission
     		}
-    		render role.permissions as JSON
+    		//print list as JSON
+    		render list as JSON
 		}else{
-			render "error"
+			render "new"
 		}
     }
 
@@ -417,50 +359,44 @@ class UserController {
 	*	保存角色
     ***/
     def roleSave = {
-
+    	def p = params.permission.split('\\|\\|')
+    	def per
+    	def list = []
+    	p.each{
+    		//print it
+    		per = new TPermission(permission : it)
+    		per.save(flush:true);
+    		list << per
+    	}
     	def role; 
     	if(params.id){
     		role = 	TRole.get(params.id);
+    		role.permissions?.each{
+    			it.delete()
+    		}
+    		role.permissions = null
     	}
-
     	if(!role){
     		role = new TRole();
     		role.dateCreated = new Date(); 
     	}
-
     	role.lastUpdated = new Date(); 
         role.properties = params
-		if(role.id){
-		}
+    	role.permissions = list
 		role.save(flush:true);
-		def rm = params.rs;
-
-		//println "rm="+rm;
-		if(rm){
-			rm = rm.split(",");
-			for(int i=0;i<rm.length;i++){
-				def moduleId = rm[i];
-				if(moduleId){
-					
-				}
-			}
-		}
 		render(text:"success",contentType: "text/plain", status:response.SC_OK)
     }
 
     def moduleList = {
-		
 		def modules;
 		def parentModule;
 		if(params.parentId){
-			
 			parentModule = TModule.get(params.parentId as Long);
 			modules = TModule.createCriteria().list {
 				eq("parentId",params.parentId as Long);
 				order("sortTop","desc");
 			}
 		}else{
-			
 			modules = TModule.createCriteria().list {
 				isNull("parentId")
 				order("sortTop","desc");
@@ -482,8 +418,7 @@ class UserController {
 	}
 
 
-    def getChildNodes(def module){
-
+    private def getChildNodes(def module){
     	def result = [];
 		def rs = TModule.createCriteria().list{
 			eq("parentId",module?.id);

@@ -7,7 +7,7 @@ class CommonController {
     def index() { }
 
     def getLeftMenu(){
-    	def menu = MenuUtils.menu()
+    	def menu = MenuUtils.menu(request)
     	render menu
     }
 }

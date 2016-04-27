@@ -45,7 +45,7 @@
 											<td>${s+1 }</td>
 											<td>${m?.name }</td>
 											<td>${m?.tname}</td>
-											<td>${m?.action}</td>
+											<td>${m?.taction}</td>
 											<td><i class="fa ${m?.moduleImg}"></i></td>
 											<td>
 												<shiro:hasPermission permission ="user:moduleEdit">

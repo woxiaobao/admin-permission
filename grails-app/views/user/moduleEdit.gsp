@@ -39,8 +39,8 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="action">action</label>
-                                <input type="text" value="${module?.action}" name="action" class="form-control" id="action">
+                                <label for="taction">action</label>
+                                <input type="text" value="${module?.taction}" name="taction" class="form-control" id="taction">
                             </div>
 
                             <div class="form-group">

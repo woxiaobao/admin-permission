@@ -25,6 +25,7 @@
         <![endif]-->
         <asset:javascript src="jquery" />
         <script type="text/javascript"><g:render template="/common/appjs"></g:render></script>
+        
         <g:layoutHead />
     </head>
     <body class="skin-black">

@@ -8,6 +8,7 @@ import grails.converters.JSON;
 class MenuUtils{
 
 	def static menu(def request){
+		/*
 			def menu="""
 				<li class=''>
 				    <a href='${request.contextPath}/'>
@@ -17,16 +18,18 @@ class MenuUtils{
 				</li>
 
 			"""
+			*/
 		Set<String> userPermi = UserSecurity.getAllPermission()
 		Set<String> list=[]
 		userPermi.each{ per ->
 			//print per
 			def moduleString = per.split(":")[0]
-			if(moduleString != 'dashboard') list << moduleString
+			//if(moduleString != 'dashboard') 
+			list << moduleString
 			//getModuleByName(moduleString)
 		}
-		menu += getModuleByName(list, request)
-		//print menu
+		def menu = getModuleByName(list, request)
+		print menu
 		menu
 	}
 

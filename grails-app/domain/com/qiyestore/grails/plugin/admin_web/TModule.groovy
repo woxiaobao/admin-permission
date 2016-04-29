@@ -8,6 +8,8 @@ class TModule {
 	String moduleImg;
 	Long  parentId;
 	Integer sortTop=0;
+
+	static hasMany = [ permissions: TPermission]
 	
 	static constraints = {
 	}

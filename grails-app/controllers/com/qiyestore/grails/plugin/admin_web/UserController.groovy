@@ -178,10 +178,18 @@ class UserController {
 		def refererUrl = request.getHeader("Referer");
 		def module;
 		def parentModule;
+		def permissions = []
 		if(params.id){
 			module = TModule.get(params.id as Long);
 			if(module){
 				parentModule = TModule.get(module.parentId);
+			}
+			module.permissions?.each{
+				def map = [:]
+				map.id = it.id
+				map.perName = it.mname
+				map.perValue = it.permission
+				permissions << map
 			}
 		}else{
 			module = new TModule();
@@ -190,7 +198,7 @@ class UserController {
 			parentModule =  TModule.get(params.parentId as Long);
 		}
 		
-		render(view: "/user/moduleEdit",model: [module:module,parentModule:parentModule,refererUrl:refererUrl]);
+		render(view: "/user/moduleEdit",model: [module:module,parentModule:parentModule,permissions:permissions,refererUrl:refererUrl]);
 	}
 	
 	
@@ -199,15 +207,31 @@ class UserController {
 	 * 保存模块
 	 */
 	def moduleSave = {
+		print params
 		def result = "success";
 		def module;
+		def per; //TPermission
+		def list = []; 
+		def mid = params.mid?.split(",")
+		def perName = params.perName?.split("\\|\\|")
+		def perValue = params.perValue?.split("\\|\\|")
+		perValue?.eachWithIndex { p, index ->
+			if(mid[index]) per = TPermission.get(mid[index])
+			else per = new TPermission()
+			per.permission = p
+			per.mname = perName[index]
+    		per.save(flush:true);
+    		list << per
+		}
 		if(params.id){
 			module = TModule.get(params.id as Long);
+			
 		}
 		if(!module){
 			module = new TModule();
 		}
 		module.properties = params
+		module.permissions = list
 		module.save(flush:true);
 		if(module.hasErrors()){
 			println "module save error:"+module.errors;
@@ -307,12 +331,30 @@ class UserController {
 
 	def roleEdit = {
  		def role 
+ 		def data = []
 		if(params.id){
 			role = TRole.get(params.id as Long);
 		}
 
+		def module = TModule.list()
+		module.each{ mod ->
+			def map = [:]
+			map.id = mod.id
+			map.name = mod.name
+			map.actions = []
+			mod.permissions?.each{
+				def per = [:]
+				per.id = it.id
+				per.name = it.mname
+				map.actions << per
+			}
+			data << map
+		}
+
 		//assets,auth,common,dashboard,code,user
+		/*
 		def control = ["assets","auth","common"]
+		
 		def data = []
          grailsApplication.controllerClasses.each { cont ->
          	
@@ -328,6 +370,7 @@ class UserController {
            	}
            
    		}
+   		*/
         //print data as JSON
 		if(!role){
 			role = new TRole();
@@ -344,7 +387,7 @@ class UserController {
     		def role = 	TRole.get(params.id);
     		def list = []
     		role.permissions.each{
-    			list << it.permission
+    			list << it.id
     		}
     		//print list as JSON
     		render list as JSON
@@ -359,22 +402,16 @@ class UserController {
 	*	保存角色
     ***/
     def roleSave = {
-    	def p = params.permission.split('\\|\\|')
+    	def p = params.permission.split(',')
     	def per
     	def list = []
     	p.each{
-    		//print it
-    		per = new TPermission(permission : it)
-    		per.save(flush:true);
+    		per = TPermission.get(it)
     		list << per
     	}
     	def role; 
     	if(params.id){
     		role = 	TRole.get(params.id);
-    		role.permissions?.each{
-    			it.delete()
-    		}
-    		role.permissions = null
     	}
     	if(!role){
     		role = new TRole();

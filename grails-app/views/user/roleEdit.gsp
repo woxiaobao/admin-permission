@@ -42,10 +42,12 @@
                                 <!-- <div id="treeDemo" class="ztree"> checked-->
                                 <div class="form-group">
                                     <g:each in="${permission}" var="per" status="i">
-                                        <h2>${per.controller}</h2>
-                                            <g:each in="${per.actions}" var="action" status="j">
-                                                <input type="checkbox"  value="${per.controller}:${action}"/>${action}
-                                            </g:each>
+                                        <g:if test="${per.actions}">
+                                          <h4>${per.name}</h4>
+                                        </g:if>
+                                        <g:each in="${per.actions}" var="action" status="j">
+                                            <input type="checkbox"  value="${action.id}"/>${action.name}
+                                        </g:each>
                                             
                                     </g:each>
                                 </div>
@@ -89,10 +91,7 @@
                             return;
                           }
                           for(var d in data){
-                            var per = data[d].split("||");
-                            for(var i=0; i<per.length;i++){
-                                $("input[value='"+per[i]+"']").attr("checked",true);
-                            }
+                            $("input[value='"+data[d]+"']").attr("checked",true);
                           }
                       }
                   });
@@ -103,12 +102,12 @@
                 $($("input:checked")).each(function(){
                     per.push( $(this).attr('value') );
                 });
-                console.log(per.join("||"));
-                $("#permission").val(per.join("||"));
+                console.log(per.join(","));
+                $("#permission").val(per.join(","));
                  $.ajax({
                       cache: false,
                       type: "POST",
-                      url:"${request.contextPath}/user/roleSave",
+                      url:app.contextPath+"/user/roleSave",
                       data:$('#roleForm').serialize(),// 你的formid $('#form_count').serialize()
                       async: false,
                       error: function(request) {

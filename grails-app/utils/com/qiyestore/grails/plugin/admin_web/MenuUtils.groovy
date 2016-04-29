@@ -8,15 +8,15 @@ import grails.converters.JSON;
 class MenuUtils{
 
 	def static menu(def request){
-		def menu='''
-			<li class="">
-			    <a href="${request.contextPath}/">
-			      <i class="fa fa-dashboard"></i>
-			      <span>首　　页</span>
-			    </a>
-			</li>
+			def menu="""
+				<li class=''>
+				    <a href='${request.contextPath}/'>
+				      <i class='fa fa-dashboard'></i>
+				      <span>首　　页</span>
+				    </a>
+				</li>
 
-		'''
+			"""
 		Set<String> userPermi = UserSecurity.getAllPermission()
 		Set<String> list=[]
 		userPermi.each{ per ->
